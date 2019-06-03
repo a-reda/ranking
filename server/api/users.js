@@ -5,6 +5,8 @@ const router = express.Router()
 
 const User = require('../models/User')
 
+const GetUsersStats = require('./admin/helper').GetUsersStats
+
 router.get('/get/:slug', async (req, res) => {
   const slug = req.params.slug
   try {
@@ -69,6 +71,25 @@ router.get('/get', async (req, res) => {
   try {
     const users = await User.find({ active:true }).sort({ points: -1 })
     res.json(users);
+  } catch (err) {
+    console.log(err)
+    res.json({ error: err.message || err.toString() });
+  }
+})
+
+router.get('/stats', async (req, res) => {
+
+  const { start, end } = req.query
+
+  try {
+    const startDate = new Date(Number(start))
+    const endDate = new Date(Number(end))
+
+    const result = await GetUsersStats({createdAt:
+                  { $gte: startDate,
+                    $lte: endDate }
+                  })
+    res.json(result)
   } catch (err) {
     console.log(err)
     res.json({ error: err.message || err.toString() });
