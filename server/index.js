@@ -11,17 +11,19 @@ const dev = process.env.v !== 'production'
 const port = process.env.PORT || 8000
 const ROOT_URL = dev ? `http://localhost:${port}` : 'https://www.scoreza.it/'
 
-const MONGO_URL = process.env.MONGO_URL
+let MONGO_URL = process.env.MONGO_URL
 
+// Mongo Atlas connection string
+// MONGO_URL = 'mongodb+srv://ranking:ranking1@scorezacluster-dt96q.mongodb.net/?retryWrites=true&w=majority'
 process.env.offline = false
+mongoose.connect(MONGO_URL, { useNewUrlParser: true, dbName: 'belliga' }).catch( (err) => {
+  // if(err) {
+    console.error('ERROR! -> ', err)
 
-mongoose.connect(MONGO_URL, {}, err => {
-  if(err) {
-    console.error(err)
     process.env.offline = true
-  }
+  // }
 })
-
+console.log('NO WAY OUT')
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
@@ -45,8 +47,9 @@ app.prepare().then(() => {
   server.use(express.json())
 
   api(server)
-
+  console.log('PREPARE')
   server.get('/users/:slug', (req, res) => {
+    console.log('GOT SOME HONEY')
     return app.render(req, res, `/users/update`, { slug: req.params.slug })
   })
 
